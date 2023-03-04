@@ -42,13 +42,22 @@ public class World : MonoBehaviour
             result += Mathf.Pow(1 - Mathf.Abs(o.offset - Mathf.PerlinNoise(posX * o.scale + seed, posY * o.scale + seed)), o.degree) * o.amplitude;
             result = Mathf.Clamp01(result);
         }
-        if(result < 0.5f)
+        if (Mathf.Round(result) == 0)
         {
             GameObject sprite = Instantiate(spriteObj, new Vector3(posX, posY, 0), Quaternion.identity);
         }
 
-
         return result;
+    }
+    public bool CheckCollision(int posX, int posY)
+    {
+        float result = 0;
+        foreach (Octave o in noiseOctaves)
+        {
+            result += Mathf.Pow(1 - Mathf.Abs(o.offset - Mathf.PerlinNoise(posX * o.scale + seed, posY * o.scale + seed)), o.degree) * o.amplitude;
+            result = Mathf.Clamp01(result);
+        }
+        return 0 == Mathf.Round(result);
     }
     [Serializable]
     private class Octave

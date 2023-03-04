@@ -29,6 +29,11 @@ public class SubController : MonoBehaviour
         camStartPos = new Vector3(transform.position.x, transform.position.y, -10);
         startSubPos = transform.position;
         cam = FindObjectOfType<Camera>();
+        while(World.world.CheckCollision(subX, subY))
+        {
+            ForceMove(0, 1);
+            Debug.Log("Inside a tile!!!");
+        }
     }
 
     // Update is called once per frame
@@ -63,9 +68,17 @@ public class SubController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.D))
             Move(1, 0);
     }
+    void ForceMove(int Xdir, int Ydir)
+    {
+        subX += Xdir;
+        subY += Ydir;
+        subPos = new Vector3(subX * tileSize, subY * tileSize, 0);
+        transform.position = subPos;
+    }
 
     void Move(int Xdir, int Ydir)
     {
+        if (World.world.CheckCollision(subX + Xdir, subY + Ydir)) return;
         startSubPos = transform.position;
         camStartPos = cam.transform.position;
 
