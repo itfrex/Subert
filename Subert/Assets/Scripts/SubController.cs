@@ -27,6 +27,8 @@ public class SubController : MonoBehaviour
     void Start()
     {
         camStartPos = new Vector3(transform.position.x, transform.position.y, -10);
+        camEndPos = camStartPos;
+
         startSubPos = transform.position;
         cam = FindObjectOfType<Camera>();
         while(World.world.CheckCollision(subX, subY))
