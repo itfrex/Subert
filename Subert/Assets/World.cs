@@ -34,7 +34,7 @@ public class World : MonoBehaviour
             }
         }
     }
-    float Generate(int posX, int posY)
+    public float Generate(float posX, float posY)
     {
         float result = 0;
         foreach (Octave o in noiseOctaves)
@@ -42,10 +42,10 @@ public class World : MonoBehaviour
             result += Mathf.Pow(1 - Mathf.Abs(o.offset - Mathf.PerlinNoise(posX * o.scale + seed, posY * o.scale + seed)), o.degree) * o.amplitude;
             result = Mathf.Clamp01(result);
         }
-        if (Mathf.Round(result) == 0)
+        /*if (Mathf.Round(result) == 0)
         {
             GameObject sprite = Instantiate(spriteObj, new Vector3(posX, posY, 0), Quaternion.identity);
-        }
+        }*/
 
         return result;
     }

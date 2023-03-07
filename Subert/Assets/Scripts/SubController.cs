@@ -23,6 +23,9 @@ public class SubController : MonoBehaviour
     [SerializeField]
     private AnimationCurve curve;
 
+    public GameObject quad;
+    private Material quadMat;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -34,6 +37,7 @@ public class SubController : MonoBehaviour
             ForceMove(0, 1);
             Debug.Log("Inside a tile!!!");
         }
+        quadMat = quad.GetComponent<MeshRenderer>().material;
     }
 
     // Update is called once per frame
@@ -55,6 +59,8 @@ public class SubController : MonoBehaviour
 
         cam.transform.position = Vector3.Lerp(camStartPos, camEndPos, percentageCompleteCam);
         transform.position = Vector3.Lerp(startSubPos, subPos, curve.Evaluate(percentageComplete));
+        quadMat.SetVector("_Position", (Vector2)transform.position);
+
     }
 
     void GetInput()
