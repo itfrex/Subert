@@ -9,6 +9,11 @@ public class SubController : MonoBehaviour
     int subX, subY;
     float tileSize = 1f;
 
+    public float fuel;
+    public float health;
+
+    private float fuelEfficency;
+
     private Vector3 subPos;
     private Vector3 startSubPos;
 
@@ -26,6 +31,11 @@ public class SubController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        TurnEventManager.current.TurnEvent += Turn;
+
+        fuel = 100;
+        health = 100;
+
         camStartPos = new Vector3(transform.position.x, transform.position.y, -10);
         camEndPos = camStartPos;
 
@@ -93,5 +103,13 @@ public class SubController : MonoBehaviour
 
         camEndPos = subPos - new Vector3(0, 0, 10);
         transform.position = subPos;
+
+        FindObjectOfType<TurnEventManager>().Turn();
+    }
+
+    // handles everything that must be done whenever a new turn occurs
+    void Turn() {
+        fuel -= 1 * fuelEfficency;
+        Debug.Log("turn");
     }
 }
