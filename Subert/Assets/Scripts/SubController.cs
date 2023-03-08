@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class SubController : MonoBehaviour
 {
+    public GeneratedMapRenderer gmr;
     Camera cam;
-    int[,] worldGen;
-    int subX, subY;
+    private int subX, subY;
     float tileSize = 1f;
 
     public float fuel;
@@ -28,13 +28,10 @@ public class SubController : MonoBehaviour
     [SerializeField]
     private AnimationCurve curve;
 
-    public GameObject quad;
-    private Material quadMat;
-
     // Start is called before the first frame update
     void Start()
     {
-        TurnEventManager.current.TurnEvent += Turn;
+        //TurnEventManager.current.TurnEvent += Turn;
 
         fuel = 100;
         health = 100;
@@ -43,13 +40,12 @@ public class SubController : MonoBehaviour
         camEndPos = camStartPos;
 
         startSubPos = transform.position;
-        cam = FindObjectOfType<Camera>();
+        cam = Camera.main;
         while(World.world.CheckCollision(subX, subY))
         {
             ForceMove(0, 1);
             Debug.Log("Inside a tile!!!");
         }
-        quadMat = quad.GetComponent<MeshRenderer>().material;
     }
 
     // Update is called once per frame
@@ -71,7 +67,6 @@ public class SubController : MonoBehaviour
 
         cam.transform.position = Vector3.Lerp(camStartPos, camEndPos, percentageCompleteCam);
         transform.position = Vector3.Lerp(startSubPos, subPos, curve.Evaluate(percentageComplete));
-        quadMat.SetVector("_Position", (Vector2)transform.position);
 
     }
 
@@ -110,7 +105,9 @@ public class SubController : MonoBehaviour
         camEndPos = subPos - new Vector3(0, 0, 10);
         transform.position = subPos;
 
-        FindObjectOfType<TurnEventManager>().Turn();
+        gmr.UpdateChunks(subX, subY);
+
+        //FindObjectOfType<TurnEventManager>().Turn();
     }
 
     // handles everything that must be done whenever a new turn occurs
