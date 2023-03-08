@@ -4,10 +4,12 @@ using UnityEngine;
 
 public class SubController : MonoBehaviour
 {
+    public float TILESIZE = 1f;
+
     public GeneratedMapRenderer gmr;
     Camera cam;
-    private int subX, subY;
-    float tileSize = 1f;
+    public int subX, subY;
+    
 
     public float fuel;
     public float health;
@@ -31,7 +33,7 @@ public class SubController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        //TurnEventManager.current.TurnEvent += Turn;
+        
 
         fuel = 100;
         health = 100;
@@ -85,7 +87,7 @@ public class SubController : MonoBehaviour
     {
         subX += Xdir;
         subY += Ydir;
-        subPos = new Vector3(subX * tileSize, subY * tileSize, 0);
+        subPos = new Vector3(subX * TILESIZE, subY * TILESIZE, 0);
         transform.position = subPos;
     }
 
@@ -100,19 +102,29 @@ public class SubController : MonoBehaviour
         elapsedTime = 0;
         elapsedTimeCam = 0;
 
-        subPos = new Vector3(subX * tileSize, subY * tileSize, 0);
+        subPos = new Vector3(subX * TILESIZE, subY * TILESIZE, 0);
 
         camEndPos = subPos - new Vector3(0, 0, 10);
         transform.position = subPos;
 
         gmr.UpdateChunks(subX, subY);
 
-        //FindObjectOfType<TurnEventManager>().Turn();
+        fuel -= 1 * fuelEfficency;
+
+        FindObjectOfType<TurnEventManager>().Turn();
     }
 
-    // handles everything that must be done whenever a new turn occurs
-    void Turn() {
-        fuel -= 1 * fuelEfficency;
-        Debug.Log("turn");
+
+    public Vector2 GetSubPosition()
+    {
+        return new Vector2(subX, subY);
+    }
+
+    public void HitSub(int damage)
+    {
+        health -= damage;
+        Debug.Log("Hit!");
+
+        // TODO add lose condition here
     }
 }
