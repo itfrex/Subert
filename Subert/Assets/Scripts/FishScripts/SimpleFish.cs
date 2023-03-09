@@ -49,6 +49,10 @@ public class SimpleFish : MonoBehaviour, IFish
     {
         return Data.fishType;
     }
+    public Vector2 GetFishPosition()
+    {
+        return new Vector2(xPos, yPos);
+    }
     public void Turn()
     {
         currSubPos = sub.GetSubPosition();
