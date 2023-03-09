@@ -22,7 +22,7 @@ public class MinnowBehavior : MonoBehaviour, IFish
         xPos = -3;
         yPos = -3;
 
-        
+
 
         sub = FindObjectOfType<SubController>();
         tileSize = sub.TILESIZE;
@@ -69,13 +69,13 @@ public class MinnowBehavior : MonoBehaviour, IFish
         else if (turnCount % 4 == 3)
             moveY = -1;
 
-        if(World.world.CheckCollision(xPos + moveX, yPos + moveY))
+        if (World.world.CheckCollision(xPos + moveX, yPos + moveY))
         {
             moveX = 0;
             moveY = 0;
         }
 
-        if(currSubPos == new Vector2(xPos + moveX, yPos + moveY))
+        if (currSubPos == new Vector2(xPos + moveX, yPos + moveY))
         {
             moveX = 0;
             moveY = 0;
@@ -86,5 +86,10 @@ public class MinnowBehavior : MonoBehaviour, IFish
         yPos += moveY;
 
         transform.position = new Vector3(xPos * tileSize, yPos * tileSize, 0);
+    }
+
+    public Vector2 GetFishPosition()
+    {
+        return new Vector2(xPos, yPos);
     }
 }

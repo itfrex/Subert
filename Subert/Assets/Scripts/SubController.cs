@@ -93,7 +93,10 @@ public class SubController : MonoBehaviour
 
     void Move(int Xdir, int Ydir)
     {
+        // dont let sub move if it is into a wall or into an obstacle
         if (World.world.CheckCollision(subX + Xdir, subY + Ydir)) return;
+        
+
         startSubPos = transform.position;
         camStartPos = cam.transform.position;
 
