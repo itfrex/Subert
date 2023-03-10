@@ -14,6 +14,7 @@ public class World : MonoBehaviour
     private int seed;
     [SerializeField]
     private GameObject spriteObj;
+    private List<TileCollider> colliders;
 
     void Awake()
     {
@@ -33,6 +34,15 @@ public class World : MonoBehaviour
                 Generate(x, y);
             }
         }
+        colliders = new List<TileCollider>();
+    }
+    public void AddCollider(TileCollider col)
+    {
+        colliders.Add(col);
+    }
+    public void RemoveCollider(TileCollider col)
+    {
+        colliders.Remove(col);
     }
     public float Generate(float posX, float posY)
     {
@@ -42,14 +52,10 @@ public class World : MonoBehaviour
             result += Mathf.Pow(1 - Mathf.Abs(o.offset - Mathf.PerlinNoise(posX * o.scale + seed, posY * o.scale + seed)), o.degree) * o.amplitude;
             result = Mathf.Clamp01(result);
         }
-        /*if (Mathf.Round(result) == 0)
-        {
-            GameObject sprite = Instantiate(spriteObj, new Vector3(posX, posY, 0), Quaternion.identity);
-        }*/
-
         return result;
     }
-    public bool CheckCollision(int posX, int posY)
+    //Checks the tilemap if there is a tile at specified point
+    public bool CheckTile(int posX, int posY)
     {
         float result = 0;
         foreach (Octave o in noiseOctaves)
@@ -58,6 +64,40 @@ public class World : MonoBehaviour
             result = Mathf.Clamp01(result);
         }
         return 0 == Mathf.Round(result);
+    }
+    //Checks all colliders/the tilemap at a point (excluding the given object) and returns true if there is a collision there.
+    public bool CheckCollision(TileCollider exclude, int posX, int posY)
+    {
+        float result = 0;
+        foreach (Octave o in noiseOctaves)
+        {
+            result += Mathf.Pow(1 - Mathf.Abs(o.offset - Mathf.PerlinNoise(posX * o.scale + seed, posY * o.scale + seed)), o.degree) * o.amplitude;
+            result = Mathf.Clamp01(result);
+        }
+        if(Mathf.Round(result) > 0)
+        {
+            foreach(TileCollider col in colliders)
+            {
+                if(col.CheckInBounds(posX, posY) && col != exclude)
+                {
+                    return true;
+                }
+            }
+        }
+        
+        return 0 == Mathf.Round(result);
+    }
+    //Returns the TileCollider of the object found a point
+    public TileCollider GetCollider(int posX, int posY)
+    {
+        foreach (TileCollider col in colliders)
+        {
+            if (col.CheckInBounds(posX, posY))
+            {
+                return col;
+            }
+        }
+        return null;
     }
     [Serializable]
     private class Octave

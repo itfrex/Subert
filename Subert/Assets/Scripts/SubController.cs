@@ -27,13 +27,15 @@ public class SubController : MonoBehaviour
     private float elapsedTimeCam;
     private float elapsedTime;
 
+    private TileCollider col;
+
     [SerializeField]
     private AnimationCurve curve;
 
     // Start is called before the first frame update
     void Start()
     {
-        
+        col = GetComponent<TileCollider>();
 
         fuel = 100;
         health = 100;
@@ -43,7 +45,7 @@ public class SubController : MonoBehaviour
 
         startSubPos = transform.position;
         cam = Camera.main;
-        while(World.world.CheckCollision(subX, subY))
+        while(World.world.CheckCollision(col, subX, subY))
         {
             ForceMove(0, 1);
             Debug.Log("Inside a tile!!!");
@@ -94,7 +96,7 @@ public class SubController : MonoBehaviour
     void Move(int Xdir, int Ydir)
     {
         // dont let sub move if it is into a wall or into an obstacle
-        if (World.world.CheckCollision(subX + Xdir, subY + Ydir)) return;
+        if (World.world.CheckCollision(col, subX + Xdir, subY + Ydir)) return;
         
 
         startSubPos = transform.position;

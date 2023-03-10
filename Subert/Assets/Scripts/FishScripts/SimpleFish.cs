@@ -10,12 +10,11 @@ public class SimpleFish : MonoBehaviour, IFish
     public FishData Data { get; }
     [SerializeField]
     private MovementPattern movementPattern;
-
-    public int xPos { get; private set; }
-    public int yPos { get; private set; }
+    private TileCollider col;
 
     SubController sub;
     Vector2Int currSubPos;
+    Vector2Int currFishPos;
     public void Start()
     {
         Initialize((int)transform.position.x, (int)transform.position.y);
@@ -23,15 +22,15 @@ public class SimpleFish : MonoBehaviour, IFish
 
     public void Initialize(int x, int y)
     {
-        xPos = x;
-        yPos = y;
+        currFishPos = new Vector2Int(x, y);
 
         sub = FindObjectOfType<SubController>();
         tileSize = sub.TILESIZE;
 
         TurnEventManager.current.TurnEvent += Turn;
 
-        transform.position = new Vector3(xPos * tileSize, yPos * tileSize, 0);
+        transform.position = new Vector3(x * tileSize, y * tileSize, 0);
+        col = GetComponent<TileCollider>();
     }
     public void Kill()
     {
@@ -51,30 +50,28 @@ public class SimpleFish : MonoBehaviour, IFish
     }
     public Vector2Int GetFishPosition()
     {
-        return new Vector2Int(xPos, yPos);
+        return currFishPos;
     }
     public void Turn()
     {
         currSubPos = sub.GetSubPosition();
-        UnsafeMove(movementPattern.Move(new Vector2(xPos, yPos), currSubPos));
+        UnsafeMove(movementPattern.Move(this));
     }
 
     void SafeMove(Vector2 direction)
     {
-        if(World.world.CheckCollision(xPos + (int)direction.x, yPos + (int)direction.y))
+        if(World.world.CheckCollision(col, currFishPos.x + (int)direction.x, currFishPos.y + (int)direction.y))
         {
-            xPos += (int)direction.x;
-            yPos += (int)direction.y;
+            currFishPos += Vector2Int.RoundToInt(direction);
 
-            transform.position = new Vector3(xPos * tileSize, yPos * tileSize, 0);
+            transform.position = new Vector3(currFishPos.x * tileSize, currFishPos.y * tileSize, 0);
         }
     }
     void UnsafeMove(Vector2 direction)
     {
-        xPos += (int)direction.x;
-        yPos += (int)direction.y;
+        currFishPos += Vector2Int.RoundToInt(direction);
 
-        transform.position = new Vector3(xPos * tileSize, yPos * tileSize, 0);
+        transform.position = new Vector3(currFishPos.x * tileSize, currFishPos.y * tileSize, 0);
     }
     [Serializable]
     private class MovementPattern
@@ -104,15 +101,16 @@ public class SimpleFish : MonoBehaviour, IFish
             public enum CollideAction
             {
                 DoNothing,
-                Damage,
                 Bounce,
                 TurnAround
             }
             [SerializeField]
             public CollideAction collideAction;
+            [SerializeField]
+            public int damageOnCollide;
         }
 
-        public Vector2 Move(Vector2 fishPos, Vector2 subPos, float offsetX = 0, float offsetY = 0)
+        public Vector2 Move(SimpleFish fishObj, int offsetX = 0, int offsetY = 0)
         {
             Vector2 finalDeviation = Vector2.zero;
             //set direction
@@ -138,7 +136,7 @@ public class SimpleFish : MonoBehaviour, IFish
             //rotate direction so that fish moves towards player
             if (moves[moveNumber].targetPlayer)
             {
-                Vector2 dist = subPos-fishPos+new Vector2(offsetX,offsetY);
+                Vector2 dist = fishObj.currSubPos-new Vector2Int((int)fishObj.transform.position.x, (int)fishObj.transform.position.y)+new Vector2(offsetX,offsetY);
 
                 if (MathF.Abs(dist.x) > MathF.Abs(dist.y))
                 {
@@ -156,18 +154,24 @@ public class SimpleFish : MonoBehaviour, IFish
             }
             bool toChain = moves[moveNumber].chainNextMove;
             //check for collision and do action if true
-            if(World.world.CheckCollision((int)(fishPos + moveDir).x, (int)(fishPos + moveDir).y)){
+            if(World.world.CheckCollision(fishObj.col, (int)(fishObj.currFishPos + moveDir).x + offsetX, (int)(fishObj.currFishPos + moveDir).y + offsetY)){
+                TileCollider collision = World.world.GetCollider((int)(fishObj.currFishPos + moveDir).x + offsetX, (int)(fishObj.currFishPos + moveDir).y + offsetY);
+                if (moves[moveNumber].damageOnCollide > 0 && collision != null && collision.gameObject == fishObj.sub.gameObject)
+                {
+                    fishObj.sub.HitSub(moves[moveNumber].damageOnCollide);
+                }
                 switch (moves[moveNumber].collideAction)
                 {
                     case MovementAction.CollideAction.DoNothing:
                         moveDir = Vector2.zero;
                         break;
                     case MovementAction.CollideAction.Bounce:
+                        facingRight = !facingRight;
                         moveDir = -moveDir;
                         break;
                     case MovementAction.CollideAction.TurnAround:
                         facingRight = !facingRight;
-                        moveDir = -moveDir;
+                        moveDir = Vector2.zero;
                         break;                    
                 }
                 if (moves[moveNumber].cancelChainOnCollision)
@@ -184,7 +188,7 @@ public class SimpleFish : MonoBehaviour, IFish
             if (toChain)
             {
                 moveNumber = (moveNumber + 1) % moves.Length;
-                finalDeviation += Move(fishPos+moveDir, subPos, offsetX + moveDir.x, offsetY + moveDir.y);
+                finalDeviation += Move(fishObj, (int)(offsetX + moveDir.x), (int)(offsetY + moveDir.y));
             }
             else
             {

@@ -134,6 +134,7 @@ GameObject:
   - component: {fileID: 330765996}
   - component: {fileID: 330765995}
   - component: {fileID: 330765994}
+  - component: {fileID: 330765997}
   m_Layer: 0
   m_Name: Simple Fish (2)
   m_TagString: Untagged
@@ -160,31 +161,37 @@ MonoBehaviour:
       chainNextMove: 0
       cancelChainOnCollision: 0
       collideAction: 0
+      damageOnCollide: 0
     - direction: 0
       targetPlayer: 0
       chainNextMove: 1
       cancelChainOnCollision: 0
-      collideAction: 3
+      collideAction: 1
+      damageOnCollide: 0
     - direction: 2
       targetPlayer: 0
       chainNextMove: 0
       cancelChainOnCollision: 0
       collideAction: 0
+      damageOnCollide: 0
     - direction: 4
       targetPlayer: 0
       chainNextMove: 0
       cancelChainOnCollision: 0
       collideAction: 0
+      damageOnCollide: 0
     - direction: 0
       targetPlayer: 0
       chainNextMove: 1
       cancelChainOnCollision: 0
-      collideAction: 3
+      collideAction: 1
+      damageOnCollide: 0
     - direction: 3
       targetPlayer: 0
       chainNextMove: 0
       cancelChainOnCollision: 0
       collideAction: 0
+      damageOnCollide: 0
 --- !u!212 &330765995
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -252,6 +259,20 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &330765997
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 330765993}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5e02b7ffed97e24c87775c1fe0e036d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  xSize: 1
+  ySize: 1
 --- !u!1 &508304983
 GameObject:
   m_ObjectHideFlags: 0
@@ -282,8 +303,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5ae292a53e907244395577b9a7d2028f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  turnCount: 0
+  tileSize: 0
+  passive: 1
+  fishName: Minnow
+  fishType: Sonar
   xPos: 0
   yPos: 0
+  sub: {fileID: 0}
+  currSubPos: {x: 0, y: 0}
 --- !u!212 &508304985
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -401,7 +429,7 @@ MonoBehaviour:
     m_Bits: 1
   m_VolumeTrigger: {fileID: 0}
   m_VolumeFrameworkUpdateModeOption: 2
-  m_RenderPostProcessing: 0
+  m_RenderPostProcessing: 1
   m_Antialiasing: 0
   m_AntialiasingQuality: 2
   m_StopNaN: 0
@@ -430,15 +458,15 @@ Camera:
   m_FocalLength: 50
   m_NormalizedViewPortRect:
     serializedVersion: 2
-    x: 0
-    y: 0
-    width: 1
-    height: 1
+    x: 0.05
+    y: 0.05
+    width: 0.55
+    height: 0.9
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 5
+  orthographic size: 8
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -629,6 +657,11 @@ MonoBehaviour:
   resolution: 512
   maxVariance: 8
   roughness: 0.35
+--- !u!1 &977340210 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4134116944406514732, guid: 8036aff473ef9ce4eb5c113ae917c76b, type: 3}
+  m_PrefabInstance: {fileID: 1772463310}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1186567355
 GameObject:
   m_ObjectHideFlags: 0
@@ -706,12 +739,26 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 4134116944406514735, guid: 8036aff473ef9ce4eb5c113ae917c76b, type: 3}
   m_PrefabInstance: {fileID: 1772463310}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 977340210}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e29a5fd0015d59b4dbfdd837e3f63907, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1333720741
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 977340210}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5e02b7ffed97e24c87775c1fe0e036d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  xSize: 1
+  ySize: 1
 --- !u!1 &1648682168
 GameObject:
   m_ObjectHideFlags: 0
@@ -840,6 +887,7 @@ GameObject:
   - component: {fileID: 2076021672}
   - component: {fileID: 2076021671}
   - component: {fileID: 2076021670}
+  - component: {fileID: 2076021673}
   m_Layer: 0
   m_Name: Simple Fish (1)
   m_TagString: Untagged
@@ -866,36 +914,43 @@ MonoBehaviour:
       chainNextMove: 0
       cancelChainOnCollision: 0
       collideAction: 0
+      damageOnCollide: 0
     - direction: 4
       targetPlayer: 0
       chainNextMove: 0
       cancelChainOnCollision: 0
       collideAction: 0
+      damageOnCollide: 0
     - direction: 0
       targetPlayer: 1
       chainNextMove: 1
       cancelChainOnCollision: 1
       collideAction: 0
+      damageOnCollide: 1
     - direction: 0
       targetPlayer: 1
       chainNextMove: 1
       cancelChainOnCollision: 1
       collideAction: 0
+      damageOnCollide: 1
     - direction: 0
       targetPlayer: 1
       chainNextMove: 1
       cancelChainOnCollision: 1
       collideAction: 0
+      damageOnCollide: 1
     - direction: 0
       targetPlayer: 1
       chainNextMove: 1
       cancelChainOnCollision: 1
       collideAction: 0
+      damageOnCollide: 1
     - direction: 0
       targetPlayer: 1
       chainNextMove: 0
       cancelChainOnCollision: 0
       collideAction: 0
+      damageOnCollide: 1
 --- !u!212 &2076021671
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -963,6 +1018,20 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2076021673
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2076021669}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5e02b7ffed97e24c87775c1fe0e036d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  xSize: 1
+  ySize: 1
 --- !u!1 &2092896918
 GameObject:
   m_ObjectHideFlags: 0
@@ -974,6 +1043,7 @@ GameObject:
   - component: {fileID: 2092896921}
   - component: {fileID: 2092896920}
   - component: {fileID: 2092896919}
+  - component: {fileID: 2092896922}
   m_Layer: 0
   m_Name: Simple Fish
   m_TagString: Untagged
@@ -999,7 +1069,8 @@ MonoBehaviour:
       targetPlayer: 0
       chainNextMove: 0
       cancelChainOnCollision: 0
-      collideAction: 3
+      collideAction: 2
+      damageOnCollide: 0
 --- !u!212 &2092896920
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -1067,3 +1138,17 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2092896922
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2092896918}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5e02b7ffed97e24c87775c1fe0e036d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  xSize: 1
+  ySize: 1

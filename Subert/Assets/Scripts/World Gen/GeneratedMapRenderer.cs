@@ -55,6 +55,7 @@ public class GeneratedMapRenderer : MonoBehaviour
     private Texture2D GenerateChunk(int chunkX, int chunkY)
     {
         generatedChunks.Add(new Vector2(chunkX, chunkY));
+        Color[] texColArray = new Color[resolution*resolution];
         Texture2D texture;
         texture = new Texture2D(resolution, resolution, TextureFormat.RGB24, true)
         {
@@ -85,6 +86,7 @@ public class GeneratedMapRenderer : MonoBehaviour
         FillCells();
         GenerateCorners();
         GenerateTexture();
+        texture.SetPixels(texColArray);
         texture.Apply();
         return texture;
 
@@ -94,17 +96,35 @@ public class GeneratedMapRenderer : MonoBehaviour
             {
                 for (int x = 0; x < arraySize; x++)
                 {
-                    cells[x][y] = World.world.CheckCollision(x + noiseOffsetX, y + noiseOffsetY);
+                    cells[x][y] = World.world.CheckTile(x + noiseOffsetX, y + noiseOffsetY);
                 }
             }
         }
         void GenerateCorners()
         {
-            for (int y = 0; y < arraySize; y++)
+            for (int y = -1; y <= arraySize; y++)
             {
-                for (int x = 0; x < arraySize; x++)
+                for (int x = -1; x <= arraySize; x++)
                 {
-                    if (cells[x][y])
+                    if (!(0 < x && x < arraySize) || !(0 < y && y < arraySize))
+                    {
+                        if (World.world.CheckTile(x + noiseOffsetX, y + noiseOffsetY))
+                        {
+                            bool ul = x >= 0 && y >= 0;
+                            bool ur = x < arraySize && y >= 0;
+                            bool dl = x >= 0 && y < arraySize;
+                            bool dr = x < arraySize && y < arraySize;
+                            if(ul) corners[x][y] = Mathf.RoundToInt(Mathf.PerlinNoise((x + noiseOffsetX) * roughness, (y + noiseOffsetY) * roughness) * maxVariance);
+                            if(ur) corners[x + 1][y] = Mathf.RoundToInt(Mathf.PerlinNoise((x + 1 + noiseOffsetX) * roughness, (y + noiseOffsetY) * roughness) * maxVariance);
+                            if(dl) corners[x][y + 1] = Mathf.RoundToInt(Mathf.PerlinNoise((x + noiseOffsetX) * roughness, (y + noiseOffsetY + 1) * roughness) * maxVariance);
+                            if(dr) corners[x + 1][y + 1] = Mathf.RoundToInt(Mathf.PerlinNoise((x + noiseOffsetX + 1) * roughness, (y + noiseOffsetY + 1) * roughness) * maxVariance);
+                            if (ul & ur) edges[x][2 * y] = true;
+                            if (ul&&dl) edges[x][2 * y + 1] = true;
+                            if (dl&&dr) edges[x][2 * y + 2] = true;
+                            if (dr&&ur) edges[x + 1][2 * y + 1] = true;
+                        }
+                    }
+                    else if (cells[x][y])
                     {
                         corners[x][y] = Mathf.RoundToInt(Mathf.PerlinNoise((x + noiseOffsetX) * roughness, (y + noiseOffsetY) * roughness) * maxVariance);
                         corners[x + 1][y] = Mathf.RoundToInt(Mathf.PerlinNoise((x + 1 + noiseOffsetX) * roughness, (y + noiseOffsetY) * roughness) * maxVariance);
@@ -363,7 +383,7 @@ public class GeneratedMapRenderer : MonoBehaviour
             {
                 for (int j = offsetX; j < upperX; j++)
                 {
-                    texture.SetPixel(j, i, Color.black);
+                    texColArray[j + i*resolution] = Color.white;
                 }
             }
         }
@@ -377,7 +397,7 @@ public class GeneratedMapRenderer : MonoBehaviour
                 {
                     for (int y = (int)Mathf.Sqrt(r * r - x * x); y >= 0; y--)
                     {
-                        texture.SetPixel(x + ox, y + oy, Color.black);
+                        texColArray[x + ox + (y + oy)*resolution] = Color.white;
                     }
                 }
             }
@@ -389,7 +409,7 @@ public class GeneratedMapRenderer : MonoBehaviour
                 {
                     for (int y = (int)Mathf.Sqrt(r * r - x * x); y >= 0; y--)
                     {
-                        texture.SetPixel(x + ox, y + oy, Color.black);
+                        texColArray[x + ox + (y + oy)*resolution] = Color.white;
                     }
                 }
             }
@@ -402,7 +422,7 @@ public class GeneratedMapRenderer : MonoBehaviour
                 {
                     for (int y = -(int)Mathf.Sqrt(r * r - x * x); y <= 0; y++)
                     {
-                        texture.SetPixel(x + ox, y + oy, Color.black);
+                        texColArray[x + ox + (y + oy)*resolution] = Color.white;
                     }
                 }
             }
@@ -414,7 +434,7 @@ public class GeneratedMapRenderer : MonoBehaviour
                 {
                     for (int y = -(int)Mathf.Sqrt(r * r - x * x); y <= 0; y++)
                     {
-                        texture.SetPixel(x + ox, y + oy, Color.black);
+                        texColArray[x + ox + (y + oy) *resolution] = Color.white;
                     }
                 }
             }
@@ -430,7 +450,7 @@ public class GeneratedMapRenderer : MonoBehaviour
                     float slope = (float)difference / (float)pixelsPerTile;
                     for (int y = 0; y <= d1 + x * slope; y++)
                     {
-                        texture.SetPixel(offsetX + x, offsetY + pixelsPerTile - 1 - y, Color.black);
+                        texColArray[offsetX + x + (offsetY + pixelsPerTile - 1 - y)*resolution] = Color.white;
                     }
                 }
             }
@@ -443,7 +463,7 @@ public class GeneratedMapRenderer : MonoBehaviour
                     float slope = (float)difference / (float)pixelsPerTile;
                     for (int x = 0; x <= d1 + y * slope; x++)
                     {
-                        texture.SetPixel(offsetX + x, y + offsetY, Color.black);
+                        texColArray[offsetX + x + (y + offsetY) *resolution] = Color.white;
                     }
                 }
             }
@@ -456,7 +476,7 @@ public class GeneratedMapRenderer : MonoBehaviour
                     float slope = (float)difference / (float)pixelsPerTile;
                     for (int y = 0; y <= d1 + x * slope; y++)
                     {
-                        texture.SetPixel(offsetX + x, offsetY + y, Color.black);
+                        texColArray[offsetX + x + (offsetY + y)*resolution] = Color.white;
                     }
                 }
             }
@@ -469,7 +489,7 @@ public class GeneratedMapRenderer : MonoBehaviour
                     float slope = (float)difference / (float)pixelsPerTile;
                     for (int x = 0; x <= d1 + y * slope; x++)
                     {
-                        texture.SetPixel(offsetX + pixelsPerTile - 1 - x, y + offsetY, Color.black);
+                        texColArray[offsetX + pixelsPerTile - 1 - x + (y + offsetY)*resolution] = Color.white;
                     }
                 }
             }
@@ -483,7 +503,7 @@ public class GeneratedMapRenderer : MonoBehaviour
             {
                 for (int x = 0; Mathf.Pow(pixelsPerTile - x, 4) / d1diff + Mathf.Pow(pixelsPerTile - y, 4) / d2diff >= 1 && x < pixelsPerTile; x++)
                 {
-                    texture.SetPixel(offsetX + Mathf.Abs(focusX - x), Mathf.Abs(focusY - y) + offsetY, Color.black);
+                    texColArray[offsetX + Mathf.Abs(focusX - x) + resolution * (Mathf.Abs(focusY - y) + offsetY)] = Color.white;
                 }
             }
         }
