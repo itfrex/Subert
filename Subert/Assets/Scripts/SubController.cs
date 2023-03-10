@@ -118,9 +118,9 @@ public class SubController : MonoBehaviour
     }
 
 
-    public Vector2 GetSubPosition()
+    public Vector2Int GetSubPosition()
     {
-        return new Vector2(subX, subY);
+        return new Vector2Int(subX, subY);
     }
 
     public void HitSub(int damage)

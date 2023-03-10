@@ -15,7 +15,7 @@ public class SimpleFish : MonoBehaviour, IFish
     public int yPos { get; private set; }
 
     SubController sub;
-    Vector2 currSubPos;
+    Vector2Int currSubPos;
     public void Start()
     {
         Initialize((int)transform.position.x, (int)transform.position.y);
@@ -49,9 +49,9 @@ public class SimpleFish : MonoBehaviour, IFish
     {
         return Data.fishType;
     }
-    public Vector2 GetFishPosition()
+    public Vector2Int GetFishPosition()
     {
-        return new Vector2(xPos, yPos);
+        return new Vector2Int(xPos, yPos);
     }
     public void Turn()
     {

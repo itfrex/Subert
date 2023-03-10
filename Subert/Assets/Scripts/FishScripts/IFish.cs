@@ -8,7 +8,7 @@ public interface IFish
     string GetFishName();
     string GetFishType();
 
-    Vector2 GetFishPosition();
+    Vector2Int GetFishPosition();
     void Turn();
 
 }

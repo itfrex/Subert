@@ -30,4 +30,20 @@ public class FishSpawnManager : MonoBehaviour
     {
 
     }
+
+    public IFish CheckFish(Vector2Int coordinates)
+    {
+        for (int i = 0; i < SPAWNCAP; i++)
+        {
+            if (spawnedFish[i] != null)
+            {
+                if (spawnedFish[i].GetFishPosition() == coordinates)
+                {
+                    return spawnedFish[i];
+                }
+            }
+        }
+
+        return null;
+    }
 }
