@@ -110,7 +110,7 @@ public class SubController : MonoBehaviour
         subPos = new Vector3(subX * TILESIZE, subY * TILESIZE, 0);
 
         camEndPos = subPos - new Vector3(0, 0, 10);
-        transform.position = subPos;
+        //transform.position = subPos;
 
         gmr.UpdateChunks(subX, subY);
 

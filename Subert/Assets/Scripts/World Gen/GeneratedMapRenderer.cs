@@ -12,9 +12,9 @@ public class GeneratedMapRenderer : MonoBehaviour
     /// </summary>
     public GameObject chunk;
     public SubController sub;
-    public int resolution = 64;
+    public int resolution = 128;
     private int pixelsPerTile = 32;
-    public int maxVariance = 8;
+    public int maxVariance = 16;
     public float roughness;
     int arraySize;
     private bool[][] cells;
@@ -114,11 +114,11 @@ public class GeneratedMapRenderer : MonoBehaviour
                             bool ur = x < arraySize && y >= 0;
                             bool dl = x >= 0 && y < arraySize;
                             bool dr = x < arraySize && y < arraySize;
-                            if(ul) corners[x][y] = Mathf.RoundToInt(Mathf.PerlinNoise((x + noiseOffsetX) * roughness, (y + noiseOffsetY) * roughness) * maxVariance);
-                            if(ur) corners[x + 1][y] = Mathf.RoundToInt(Mathf.PerlinNoise((x + 1 + noiseOffsetX) * roughness, (y + noiseOffsetY) * roughness) * maxVariance);
-                            if(dl) corners[x][y + 1] = Mathf.RoundToInt(Mathf.PerlinNoise((x + noiseOffsetX) * roughness, (y + noiseOffsetY + 1) * roughness) * maxVariance);
-                            if(dr) corners[x + 1][y + 1] = Mathf.RoundToInt(Mathf.PerlinNoise((x + noiseOffsetX + 1) * roughness, (y + noiseOffsetY + 1) * roughness) * maxVariance);
-                            if (ul & ur) edges[x][2 * y] = true;
+                            if(ul) corners[x][y] = 1 + Mathf.RoundToInt(Mathf.PerlinNoise((x + noiseOffsetX) * roughness, (y + noiseOffsetY) * roughness) * maxVariance);
+                            if(ur) corners[x + 1][y] = 1 + Mathf.RoundToInt(Mathf.PerlinNoise((x + 1 + noiseOffsetX) * roughness, (y + noiseOffsetY) * roughness) * maxVariance);
+                            if(dl) corners[x][y + 1] = 1 + Mathf.RoundToInt(Mathf.PerlinNoise((x + noiseOffsetX) * roughness, (y + noiseOffsetY + 1) * roughness) * maxVariance);
+                            if(dr) corners[x + 1][y + 1] = 1 + Mathf.RoundToInt(Mathf.PerlinNoise((x + noiseOffsetX + 1) * roughness, (y + noiseOffsetY + 1) * roughness) * maxVariance);
+                            if (ul&&ur) edges[x][2 * y] = true;
                             if (ul&&dl) edges[x][2 * y + 1] = true;
                             if (dl&&dr) edges[x][2 * y + 2] = true;
                             if (dr&&ur) edges[x + 1][2 * y + 1] = true;
@@ -253,8 +253,10 @@ public class GeneratedMapRenderer : MonoBehaviour
                             //All
                             if (edges[x][2 * y + 2] && edges[x + 1][2 * y + 1] && edges[x][2 * y] && edges[x][2 * y + 1])
                             {
+                                DrawCurve(texPosX, texPosY, 0, 0, corners[x][y + 1], corners[x + 1][y]);
                                 DrawCurve(texPosX, texPosY, 0, pixelsPerTile - 1, corners[x][y], corners[x + 1][y + 1]);
                                 DrawCurve(texPosX, texPosY, pixelsPerTile - 1, pixelsPerTile - 1, corners[x + 1][y], corners[x][y + 1]);
+                                DrawCurve(texPosX, texPosY, pixelsPerTile - 1, 0, corners[x][y], corners[x][y + 1]);
                             }
                             //UD
                             else if (edges[x][2 * y + 2] && edges[x][2 * y])

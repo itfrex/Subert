@@ -5,12 +5,18 @@ using System;
 
 public class SimpleFish : MonoBehaviour, IFish
 {
+    const float MOVEMENT_TIME = 0.5f;
+
     float tileSize;
 
     public FishData Data { get; }
     [SerializeField]
     private MovementPattern movementPattern;
     private TileCollider col;
+    private BSpline path;
+
+    private Coroutine movementCoroutine;
+    private float movementProgress;
 
     SubController sub;
     Vector2Int currSubPos;
@@ -18,6 +24,7 @@ public class SimpleFish : MonoBehaviour, IFish
     public void Start()
     {
         Initialize((int)transform.position.x, (int)transform.position.y);
+        path = new BSpline(currFishPos);
     }
 
     public void Initialize(int x, int y)
@@ -55,6 +62,11 @@ public class SimpleFish : MonoBehaviour, IFish
     public void Turn()
     {
         currSubPos = sub.GetSubPosition();
+        if(movementCoroutine != null)
+        {
+            StopCoroutine(movementCoroutine);
+            path.RemoveToEvalPoint(movementProgress);
+        }
         UnsafeMove(movementPattern.Move(this));
     }
 
@@ -67,11 +79,29 @@ public class SimpleFish : MonoBehaviour, IFish
             transform.position = new Vector3(currFishPos.x * tileSize, currFishPos.y * tileSize, 0);
         }
     }
-    void UnsafeMove(Vector2 direction)
+    void UnsafeMove(List<Vector2> moves)
     {
-        currFishPos += Vector2Int.RoundToInt(direction);
+        Vector2 newPos = currFishPos;
+        foreach(Vector2 move in moves)
+        {
+            currFishPos += Vector2Int.RoundToInt(move);
+            newPos += move;
+            path.AddPoint(newPos);
+        }
 
-        transform.position = new Vector3(currFishPos.x * tileSize, currFishPos.y * tileSize, 0);
+        movementCoroutine = StartCoroutine(FollowPath(MOVEMENT_TIME));
+    }
+    private IEnumerator FollowPath(float seconds)
+    {
+        float time = 0;
+        while(time < seconds)
+        {
+            time += Time.deltaTime;
+            movementProgress = time / seconds;
+            transform.position = path.Evaluate(movementProgress);
+            yield return new WaitForEndOfFrame();
+        }
+        path.RemoveToEvalPoint(1);
     }
     [Serializable]
     private class MovementPattern
@@ -110,9 +140,9 @@ public class SimpleFish : MonoBehaviour, IFish
             public int damageOnCollide;
         }
 
-        public Vector2 Move(SimpleFish fishObj, int offsetX = 0, int offsetY = 0)
+        public List<Vector2> Move(SimpleFish fishObj, int offsetX = 0, int offsetY = 0)
         {
-            Vector2 finalDeviation = Vector2.zero;
+            List<Vector2> finalDeviation = new List<Vector2>();
             //set direction
             Vector2 moveDir = Vector2.zero;
             switch (moves[moveNumber].direction)
@@ -184,11 +214,11 @@ public class SimpleFish : MonoBehaviour, IFish
                     toChain = false;
                 }
             }
-            finalDeviation += moveDir;
+            finalDeviation.Add(moveDir);
             if (toChain)
             {
                 moveNumber = (moveNumber + 1) % moves.Length;
-                finalDeviation += Move(fishObj, (int)(offsetX + moveDir.x), (int)(offsetY + moveDir.y));
+                finalDeviation.AddRange(Move(fishObj, (int)(offsetX + moveDir.x), (int)(offsetY + moveDir.y)));
             }
             else
             {
