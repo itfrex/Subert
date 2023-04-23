@@ -13,8 +13,10 @@ public class TileCollider : MonoBehaviour
 
     public bool CheckInBounds(int x, int y)
     {
+        /*
         xPos = (int)transform.position.x;
         yPos = (int)transform.position.y;
+        */
         return (xPos <= x && x < xPos + xSize && yPos <= y && y < yPos + ySize);
     }
     private void Start()
@@ -26,5 +28,10 @@ public class TileCollider : MonoBehaviour
     private void OnDisable()
     {
         World.world.RemoveCollider(this);
+    }
+    public void UpdateCollider(Vector2Int pos)
+    {
+        xPos = pos.x;
+        yPos = pos.y;
     }
 }

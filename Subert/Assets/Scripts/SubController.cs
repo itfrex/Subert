@@ -116,6 +116,8 @@ public class SubController : MonoBehaviour
 
         fuel -= 1 * fuelEfficency;
 
+        col.UpdateCollider(GetSubPosition());
+
         FindObjectOfType<TurnEventManager>().Turn();
     }
 

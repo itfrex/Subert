@@ -5,7 +5,7 @@ using System;
 
 public class SimpleFish : MonoBehaviour, IFish
 {
-    const float MOVEMENT_TIME = 0.5f;
+    const float MOVEMENT_TIME = 0.2f;
 
     float tileSize;
 
@@ -68,6 +68,7 @@ public class SimpleFish : MonoBehaviour, IFish
             path.RemoveToEvalPoint(movementProgress);
         }
         UnsafeMove(movementPattern.Move(this));
+        
     }
 
     void SafeMove(Vector2 direction)
@@ -88,8 +89,8 @@ public class SimpleFish : MonoBehaviour, IFish
             newPos += move;
             path.AddPoint(newPos);
         }
-
         movementCoroutine = StartCoroutine(FollowPath(MOVEMENT_TIME));
+        col.UpdateCollider(currFishPos);
     }
     private IEnumerator FollowPath(float seconds)
     {
